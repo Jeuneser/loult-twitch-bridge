@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Twitch ↔ Loult ChatBridge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: 'JetBrains Mono', monospace;
+      background: #0d1117; color: #c9d1d9; line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px; margin: auto;
+      padding: 40px 20px;
+      animation: fadeIn 1s ease-out;
+    }
+    h1, h2, h3 { color: #58a6ff; margin-bottom: 0.5em; }
+    p, li, code { font-size: 16px; }
+    code {
+      background: #161b22; padding: 2px 6px;
+      border-radius: 5px; color: #f1fa8c;
+    }
+    pre {
+      background: #161b22; padding: 15px;
+      border-radius: 10px; overflow-x: auto;
+      box-shadow: 0 0 10px #000;
+    }
+    .highlight { color: #8be9fd; }
+    ul { padding-left: 1.2em; }
+    .tag {
+      background: #ff79c6; color: black;
+      padding: 2px 6px; border-radius: 3px;
+      font-size: 13px;
+    }
+    footer {
+      margin-top: 60px; text-align: center;
+      color: #888; font-size: 14px;
+    }
+    header { position: relative; width: 100%; overflow: hidden; }
+    header img {
+      width: 50%; height: auto;
+      margin: 0 auto; display: block;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .setup-button {
+      font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(135deg, #58a6ff, #8be9fd);
+      color: #0d1117;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 30px;
+    }
+    .setup-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .setup-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="https://i.imgur.com/7o3cckN.gif" alt="Projet Loult-Twitch">
+    </header>
+
+    <h1>🔌 Twitch ↔ Loult ChatBridge</h1>
+    <p>
+      Ce projet Python permet de créer un pont entre une chaîne <span class="tag">Twitch</span>
+      (ex : <code>samueletienne</code>) et un salon <span class="tag">Loult.family</span>,
+      tout en affichant une fenêtre automatisée de Twitch dans laquelle vous vous connectez manuellement.
+    </p>
+
+    <h2>🚀 Objectif simplifié</h2>
+    <ul>
+      <li>Ouvrir une fenêtre Twitch via Selenium</li>
+      <li>Vous connecter manuellement à votre compte</li>
+      <li>Laisser le bot récupérer les messages affichés</li>
+      <li>Les messages sont redirigés vers Loult via un cookie utilisateur</li>
+    </ul>
+
+    <h2>📦 Structure du projet</h2>
+    <pre><code>loult-twitch-bridge/
+├── bot/
+│   ├── loult_ws.py         # Connexion WebSocket Loult
+│   ├── twitch_browser.py   # Ouvre Twitch dans une fenêtre Selenium (login manuel)
+│   ├── command_handler.py  # Commandes Loult (!twitch, !show...)
+│   ├── message_router.py   # Routage des messages
+├── config/.env             # Contient uniquement le cookie Loult
+├── data/logs/              # Logs des messages Twitch
+├── requirements.txt
+└── README.html</code></pre>
+
+    <h2>⚙️ Commandes disponibles sur Loult</h2>
+    <ul>
+      <li><code>!twitch &lt;chaîne&gt;</code> – Ouvre Twitch dans Selenium et commence le pont</li>
+      <li><code>!stop flux</code> – Stoppe l’écoute</li>
+      <li><code>!users</code> – Tire au sort un pseudo Twitch</li>
+      <li><code>!show @pseudo</code> – Affiche ses derniers messages</li>
+      <li><code>!chatty @pseudo "message"</code> – Parle en son nom sur Twitch</li>
+    </ul>
+
+    <h2>🔐 Authentification</h2>
+    <p>
+      Vous vous connectez manuellement dans la fenêtre Twitch ouverte par Selenium. Le bot n’a besoin que de :
+    </p>
+    <ul>
+      <li>Votre <code>cookie Loult</code> dans le fichier <code>.env</code></li>
+    </ul>
+
+    <h2>🧠 Exemple de scénario</h2>
+    <pre><code>[Loult] !twitch samueletienne
+→ Selenium s’ouvre sur twitch.tv/samueletienne
+→ Vous vous connectez manuellement
+→ Les messages Twitch sont affichés sur Loult
+
+[Loult] !chatty @pseudo "yo mec"
+→ Envoie : @pseudo yo mec (sur Twitch via votre session ouverte)
+→ Si réponse vers @loultennw → redirigée vers Loult</code></pre>
+
+    <h2>🧪 Installation locale</h2>
+    <ol>
+      <li>Installer Python 3.10+</li>
+      <li><code>pip install -r requirements.txt</code></li>
+      <li>Créer <code>config/.env</code> avec seulement :</li>
+    </ol>
+    <pre><code>LOULT_COOKIE=100e4d22991b713ec66bd9e7d3e5d323</code></pre>
+
+    <h2>🧱 Technologies utilisées</h2>
+    <ul>
+      <li><code>Python</code> – logique principale</li>
+      <li><code>Selenium</code> – pour afficher Twitch</li>
+      <li><code>WebSocket</code> – communication avec Loult</li>
+      <li><code>requests</code> – interactions avec Twitch API</li>
+      <li><code>dotenv</code> – gestion des variables d’environnement</li>
+    </ul>
+
+    <footer>
+      🧠 Projet conceptuel par <code>@loultennw</code> | Interface interactive locale 2025
+
+      <div style="text-align: center;">
+        <button id="downloadSetup" class="setup-button">📦 Télécharger setup.sh</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("downloadSetup").addEventListener("click", function () {
+      const setupContent = `#!/bin/bash
+
+echo "[✔] Création de l'arborescence..."
+mkdir -p loult-twitch-bridge/{bot,config,data/logs}
+
+echo "[✔] Création du fichier .env"
+touch loult-twitch-bridge/config/.env
+
+echo "[✔] Création du requirements.txt"
+cat <<EOL > loult-twitch-bridge/requirements.txt
+selenium
+websocket-client
+requests
+python-dotenv
+EOL
+
+echo "[✔] Création du main.py avec ouverture Twitch via Firefox"
+cat <<EOF > loult-twitch-bridge/main.py
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+import time
+
+options = Options()
+options.add_argument("--width=1200")
+options.add_argument("--height=800")
+
+print("💬 Entrez le nom de la chaîne Twitch à ouvrir :")
+channel = input("🔗 twitch.tv/")
+
+# Lance Firefox
+service = Service()
+driver = webdriver.Firefox(service=service, options=options)
+driver.get(f"https://www.twitch.tv/{channel}")
+
+print(f"🎥 Fenêtre ouverte sur https://www.twitch.tv/{channel}")
+print("💡 Connecte-toi manuellement si besoin. Le scraping commencera après ton login.")
+
+# Garde la fenêtre ouverte
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("👋 Fermeture...")
+    driver.quit()
+EOF
+
+echo "[✔] Setup terminé ! Lancez-le avec :"
+echo "    cd loult-twitch-bridge && python main.py"
+`;
+
+      const blob = new Blob([setupContent], { type: "text/x-shellscript" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "setup.sh";
+      link.click();
+    });
+  </script>
+</body>
+</html>
+
